@@ -445,7 +445,7 @@ AddStaticDNS() {
 
     if [ ! -z "${ip}" ]; then
         if [[ "${type}" == "address" ]]; then
-            echo "address=\/${fqdn}\/${ip}" >> "${dnsstaticconfig}"
+            echo "address=/${fqdn}/${ip}" >> "${dnsstaticconfig}"
         fi
         if [[ "${type}" == "cname" ]]; then
             echo "cname=${fqdn},${ip}" >> "${dnsstaticconfig}"
@@ -455,7 +455,7 @@ AddStaticDNS() {
 
 RemoveStaticDNS() {
     fqdn="${args[2]}"
-    sed -i "/*=.${fqdn}.*/d" "${dnsstaticconfig}"
+    sed -i "/${fqdn}/d" "${dnsstaticconfig}"
 }
 
 SetHostRecord() {
@@ -581,8 +581,8 @@ main() {
         "resolve"             ) ResolutionSettings;;
         "addstaticdhcp"       ) AddDHCPStaticAddress;;
         "removestaticdhcp"    ) RemoveDHCPStaticAddress;;
-        "addstatisdns"        ) AddStaticDNS;;
-        "removestaticdns"     ) RemoveStaticDNS
+        "addstaticdns"        ) AddStaticDNS;;
+        "removestaticdns"     ) RemoveStaticDNS;;
         "-r" | "hostrecord"   ) SetHostRecord "$3";;
         "-e" | "email"        ) SetAdminEmail "$3";;
         "-i" | "interface"    ) SetListeningMode "$@";;
