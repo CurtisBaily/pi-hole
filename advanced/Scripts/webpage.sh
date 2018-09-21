@@ -16,6 +16,7 @@ readonly dhcpconfig="/etc/dnsmasq.d/02-pihole-dhcp.conf"
 readonly FTLconf="/etc/pihole/pihole-FTL.conf"
 # 03 -> wildcards
 readonly dhcpstaticconfig="/etc/dnsmasq.d/04-pihole-static-dhcp.conf"
+readonly dnsstaticconfig="/etc/dnsmasq.d/05-pihole-static-dns.conf"
 
 coltable="/opt/pihole/COL_TABLE"
 if [[ -f ${coltable} ]]; then
@@ -437,6 +438,26 @@ RemoveDHCPStaticAddress() {
     sed -i "/dhcp-host=${mac}.*/d" "${dhcpstaticconfig}"
 }
 
+AddStaticDNS() {
+    type="${args[2]}"
+    fqdn="${args[3]}"
+    ip="${args[4]}"
+
+    if [ ! -z "${ip}" ]; then
+        if [[ "${type}" == "address" ]]; then
+            echo "address=\/${fqdn}\/${ip}" >> "${dnsstaticconfig}"
+        fi
+        if [[ "${type}" == "cname" ]]; then
+            echo "cname=${fqdn},${ip}" >> "${dnsstaticconfig}"
+        fi
+    fi
+}
+
+RemoveStaticDNS() {
+    fqdn="${args[2]}"
+    sed -i "/*=.${fqdn}.*/d" "${dnsstaticconfig}"
+}
+
 SetHostRecord() {
     if [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then
         echo "Usage: pihole -a hostrecord <domain> [IPv4-address],[IPv6-address]
@@ -560,6 +581,8 @@ main() {
         "resolve"             ) ResolutionSettings;;
         "addstaticdhcp"       ) AddDHCPStaticAddress;;
         "removestaticdhcp"    ) RemoveDHCPStaticAddress;;
+        "addstatisdns"        ) AddStaticDNS;;
+        "removestaticdns"     ) RemoveStaticDNS
         "-r" | "hostrecord"   ) SetHostRecord "$3";;
         "-e" | "email"        ) SetAdminEmail "$3";;
         "-i" | "interface"    ) SetListeningMode "$@";;
